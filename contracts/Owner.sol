@@ -32,10 +32,6 @@ contract Owner {
         emit OwnerSet(address(0), owner);
     }
 
-    function currentTimestamp(bytes memory returnedData) external view returns(bytes32) {
-        return bytes32(returnedData) << 32;
-    }
-
     function generateMappingWithGroupingKey(
         bytes6 keyPrefix,
         bytes4 mapPrefix,

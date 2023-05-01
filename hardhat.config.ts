@@ -1,7 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
-const pvtKey = '0xbbc6703446945a0d6e1d40d50664da1c37bf51a1383ce165af96ccaa62c8f56e'
+const pvtKey = 'your-private-key'
 
 const config: HardhatUserConfig = {
   solidity: "0.8.18",
