@@ -25,4 +25,4 @@ npx hardhat run scripts/deployOwnerThroughFactory.ts --network luksoTestnet
 npx hardhat run scripts/sendFunds.ts --network luksoTestnet
 ```
 
-You can also test out the `pre-eip155`condition.
+You can also test out the `pre-eip155`condition by commenting out `chainId`.
