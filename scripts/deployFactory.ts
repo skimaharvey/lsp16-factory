@@ -1,11 +1,13 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const gasPrice = 1500000000;
+  const gasPrice = await ethers.provider.getGasPrice();
 
   const LSP16UniversalFactory = await ethers.getContractFactory("LSP16UniversalFactory");
 
-  const universalFactory = await LSP16UniversalFactory.deploy({gasPrice});
+  console.log(`Deploying LSP16UniversalFactory with gas price ${await ethers.provider.getGasPrice()}...`)
+
+  const universalFactory = await LSP16UniversalFactory.deploy();
 
   await universalFactory.deployed();
 

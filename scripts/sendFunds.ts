@@ -9,17 +9,18 @@ const walletAddress = wallet.address;
 console.log('Wallet address:', walletAddress);
 
 
-const recipientAddress = '0x067024faa81ACBF984EEA0E4E75Fcc3F44558AfD';
-const amountToSend = ethers.utils.parseEther('0.5');
+const recipientAddress = '0xeC21Ad25A3fB6483930C2e7BC7E8a48338B3a2BB';
+const amountToSend = ethers.utils.parseEther('0.1');
 
 
 
 (async function() {
+    console.log('nonce:', await provider.getTransactionCount(walletAddress));
     const transaction = {
       to: recipientAddress,
       value: amountToSend,
       gasLimit: 50000,
-      gasPrice: ethers.utils.parseUnits('45', 'gwei'),
+      gasPrice: ethers.utils.parseUnits('4.5', 'gwei'),
       chainId: 4201, // will fail if network is not pre-eip155 enabled
       nonce: await provider.getTransactionCount(walletAddress),
   };
