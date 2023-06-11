@@ -60,12 +60,9 @@ contract LSP16UniversalFactory {
      */
     function calculateAddress(
         bytes32 byteCodeHash,
-        bytes32 providedSalt,
-        bool initializable,
-        bytes calldata initializeCallData
+        bytes32 providedSalt
     ) public view virtual returns (address) {
-        bytes32 generatedSalt = generateSalt(initializable, initializeCallData, providedSalt);
-        return Create2.computeAddress(generatedSalt, byteCodeHash);
+        return Create2.computeAddress(providedSalt, byteCodeHash);
     }
 
     /**
@@ -242,5 +239,8 @@ contract LSP16UniversalFactory {
                 revert CannotInitializeContract();
             }
         }
+
     }
+
+
 }

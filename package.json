@@ -6,6 +6,7 @@
     "hardhat": "^2.14.0"
   },
   "dependencies": {
+    "@lukso/lsp-smart-contracts": "^0.10.1",
     "@openzeppelin/contracts": "^4.8.3"
   }
 }
