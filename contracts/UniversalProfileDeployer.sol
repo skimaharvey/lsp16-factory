@@ -10,7 +10,7 @@ import {ILSP14Ownable2Step} from '@lukso/lsp-smart-contracts/contracts/LSP14Owna
 
 contract UniversalProfileDeployer {
 
-    function deployUPAndKeyManager(bytes calldata universalProfileBbyteCode,  bytes calldata keyManagerByteCode, address allPermissionsAddress, bytes12 universalProfleProvidedSalt, bytes32 keyManagerProvidedSalt)
+    function deployUPAndKeyManager(bytes calldata universalProfileByteCode,  bytes calldata keyManagerByteCode, address allPermissionsAddress, bytes32 universalProfleProvidedSalt, bytes32 keyManagerProvidedSalt)
         public
         payable
         virtual
@@ -19,7 +19,7 @@ contract UniversalProfileDeployer {
         bytes32 universalProfileGeneratedSalt = keccak256(abi.encodePacked(allPermissionsAddress, keyManagerByteCode, universalProfleProvidedSalt));
 
         // deploy UP contract
-        universalProfile = Create2.deploy(msg.value, universalProfileGeneratedSalt, abi.encodePacked(universalProfileBbyteCode,abi.encode(address(this))));
+        universalProfile = Create2.deploy(msg.value, universalProfileGeneratedSalt, abi.encodePacked(universalProfileByteCode,abi.encode(address(this))));
 
         // deploy keyManager contract
         keyManager = Create2.deploy(0, keyManagerProvidedSalt, abi.encodePacked(keyManagerByteCode,abi.encode(universalProfile)));
