@@ -13,7 +13,7 @@ import {ILSP14Ownable2Step} from '@lukso/lsp-smart-contracts/contracts/LSP14Owna
 // 2nd step: deploy the owner contract (the owner that will be set as the owner of the universal profile contract at the end of the deployment process)
 
 // 3rd step: call firstOwner that will be in charge of making the necessary calls that could be needed to set up the universal profile contract
-// in this case FirstOwner will be in charge of deploying UPs and KeyManagers and setting up the permissions (we could use delegatecall to do this)
+// in this example FirstOwner will be in charge of setting up the permissions between the key manager and the UP etc... (we could use delegatecall to do this)
 
 
 contract UniversalProfileAndOwnerDeployer {
@@ -54,10 +54,14 @@ contract UniversalProfileAndOwnerDeployer {
 
         uint256 totalValueSent = universalProfileDeployment.value + ownerDeployment.value ;
 
-        (bool success,) = universalProfileFirstOwner.call{value: msg.value - totalValueSent}(abi.encodePacked(calldaToFirstOwner, abi.encodePacked(universalProfile, owner)));
+        (bool success,) = universalProfileFirstOwner.call{value: msg.value - totalValueSent}(abi.encodeWithSignature("setUpUniversalProfile(bytes)", abi.encodePacked(calldaToFirstOwner, universalProfile, owner)));
         require(success, "UniversalProfileDeployer: first owner call failed");
     }
 
+}
+
+interface IFirstOwner {
+    function setUpUniversalProfile(bytes calldata initializationBytes) external;
 }
 
 contract FirstOwner {
