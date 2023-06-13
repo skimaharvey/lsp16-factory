@@ -61,12 +61,12 @@ contract UniversalProfileAndOwnerDeployer {
 }
 
 interface IFirstOwner {
-    function setUpUniversalProfile(bytes calldata initializationBytes) external;
+   function setUpUniversalProfile(bytes calldata initializationBytes) external;
 }
 
 contract FirstOwner {
 
-    function setUpUniversalProfile(bytes calldata initializationBytes) public {
+    function setUpUniversalProfile(bytes calldata initializationBytes) public payable {
         address allPermissionsAddress = address(bytes20(initializationBytes));
         address universalProfileAddress = address(bytes20(initializationBytes[20:40]));
         address keyManagerAddress = address(bytes20(initializationBytes[40:]));
