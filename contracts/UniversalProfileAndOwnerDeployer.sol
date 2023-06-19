@@ -4,7 +4,9 @@ pragma solidity ^0.8.4;
 import {_LSP6KEY_ADDRESSPERMISSIONS_PERMISSIONS_PREFIX, _PERMISSION_CHANGEOWNER, _PERMISSION_EDITPERMISSIONS, ALL_REGULAR_PERMISSIONS} from "@lukso/lsp-smart-contracts/contracts/LSP6KeyManager/LSP6Constants.sol";
 import {LSP6Utils} from '@lukso/lsp-smart-contracts/contracts/LSP6KeyManager/LSP6Utils.sol';
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ILSP14Ownable2Step} from '@lukso/lsp-smart-contracts/contracts/LSP14Ownable2Step/ILSP14Ownable2Step.sol';
+
 
 
 
@@ -15,6 +17,7 @@ import {ILSP14Ownable2Step} from '@lukso/lsp-smart-contracts/contracts/LSP14Owna
 // 3rd step: call firstOwner that will be in charge of making the necessary calls that could be needed to set up the universal profile contract
 // in this example FirstOwner will be in charge of setting up the permissions between the key manager and the UP etc... (we could use delegatecall to do this)
 
+// TODO: deal with msg.value logic
 
 contract UniversalProfileAndOwnerDeployer {
 
@@ -30,6 +33,54 @@ contract UniversalProfileAndOwnerDeployer {
       bytes byteCode; // owner contract bytecode + constructor params to be appended to the constructor before the universal profile address
       bool appendUniversalProfileAddress; // will append the universal profile address to the constructor params if true + the extraConstructorParams
       bytes extraConstructorParams; // params to be appended to the constructor after the universal profile address
+    }
+
+    struct UniversalProfileDeploymentInit {
+      uint256 value;
+      bytes32 salt;
+      address implementation;
+      bytes initializationBytes;
+    }
+
+    struct OwnerDeploymentInit {
+      uint256 value;
+      bytes32 salt;
+      address implementation;
+      bool appendUniversalProfileAddress; // will append the universal profile address to the initialisation bytes if true + the extraConstructorParams
+      bytes initializationBytes;
+      bytes extraInitialisationBytes; // params to be appended to the constructor after the universal profile address
+    }
+
+
+    function deployCreate2ProxyInit(
+        UniversalProfileDeploymentInit calldata universalProfileDeployment,
+        OwnerDeploymentInit calldata ownerDeployment,
+        address universalProfileFirstOwner,
+        bytes calldata calldaToFirstOwner
+    ) public payable virtual returns (address upProxy, address ownerProxy) {
+
+        if(msg.value < universalProfileDeployment.value + ownerDeployment.value ) {
+            revert("UniversalProfileDeployer: insufficient funds");
+        }
+
+        bytes32 universalProfileGeneratedSalt = keccak256(abi.encode(universalProfileDeployment.salt,ownerDeployment,universalProfileFirstOwner, calldaToFirstOwner));
+
+
+        upProxy = Clones.cloneDeterministic(universalProfileDeployment.implementation, universalProfileGeneratedSalt);
+
+        (bool success,) = upProxy.call{value: msg.value}(universalProfileDeployment.initializationBytes);
+        require(success, 'failed initialization of UP proxy');
+
+        ownerProxy = Clones.cloneDeterministic(ownerDeployment.implementation, keccak256(abi.encode(ownerDeployment.salt, upProxy)));
+
+        bytes memory ownerInitializationBytes = ownerDeployment.appendUniversalProfileAddress ? abi.encodePacked(ownerDeployment.initializationBytes, abi.encode(upProxy)) : ownerDeployment.initializationBytes;
+
+        (success,) = ownerProxy.call{value: msg.value}(ownerInitializationBytes);
+        require(success, 'failed initialization of owner proxy');
+
+        (success,) = universalProfileFirstOwner.call{value: msg.value}(abi.encodeWithSignature("setUpUniversalProfile(bytes)", abi.encodePacked(calldaToFirstOwner, upProxy, ownerProxy)));
+        require(success, "UniversalProfileDeployer: first owner call failed");
+
     }
 
 
