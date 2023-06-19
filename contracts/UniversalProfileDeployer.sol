@@ -13,7 +13,6 @@ contract UniversalProfileDeployer {
     function deployUPAndKeyManager(bytes calldata universalProfileByteCode,  bytes calldata keyManagerByteCode, address allPermissionsAddress, bytes32 universalProfleProvidedSalt, bytes32 keyManagerProvidedSalt)
         public
         payable
-        virtual
         returns (address universalProfile, address keyManager)
     {   // generate salt for the UP contract
         bytes32 universalProfileGeneratedSalt = keccak256(abi.encodePacked(allPermissionsAddress, keyManagerByteCode, universalProfleProvidedSalt));
